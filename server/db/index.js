@@ -8,10 +8,59 @@ const pool = new Pool({
   port: 5432,
 })
 
+pool.connect();
+
+pool.query('SELECT $1:: text as message', ['Hello World'], (err, res) => {
+  console.log(err ? err.stack : res.rows[0].message);
+})
+
+// GET pile of photos
+const getListingPhotos = function (propertyId, callback) {
+  pool.query(`SELECT * FROM photos WHERE propertyListing_id = ${propertyId};`, (err, results, fields) => {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, results)
+    }
+  });
+};
+
+// POST pile of photos
+const postListingPhotos = function (propertyId, callback) {
+  pool.query(`INSERT INTO photos (src, property_description, propertyListing_id) VALUES ($1, $2, $3);`, (err, results, fields) => {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, results);
+    }
+  });
+}
+
+// PUT (edit description) of a photo
+const putListingPhotos = function (id, callback) {
+  pool.query(`UPDATE photos SET property_decription WHERE id = ${id};`, (err, results, fields) => {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, results);
+    }
+  });
+}
+
+// DELETE pile of photos
+const deleteListingPhotos = function (id, callback) {
+  pool.query(`DELETE FROM photos WHERE propertyListing_id = ${propertyId};`, (err, results, fields) => {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, results)
+    }
+  });
+}
+
 console.log('Postgres Connection Hit');
 
-module.exports = pool
-
+module.exports = {pool, getListingPhotos, postListingPhotos, putListingPhotos, deleteListingPhotos}
 
 // var mysql = require('mysql');
 // var connection = mysql.createConnection({
